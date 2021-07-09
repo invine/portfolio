@@ -11,7 +11,7 @@ import (
 )
 
 func getenv(key, fallback string) string {
-	value := os.Getenv(key)
+	    value := os.Getenv(key)
 	if len(value) == 0 {
 		return fallback
 	}
@@ -34,6 +34,8 @@ func main() {
 
 	s := api.NewServer(pr, y)
 	s.InitializeRoutes()
+
+	log.Printf("Starting server on %s...", port)
 
 	log.Fatal(s.ListenAndServe(fmt.Sprintf(":%s", port)))
 }

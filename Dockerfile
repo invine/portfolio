@@ -1,13 +1,14 @@
-FROM golang:alpine AS builder
+FROM golang:latest AS builder
 
 # Set necessary environmet variables needed for our image
 ENV GO111MODULE=on \
-    CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
 
 # Move to working directory /build
 WORKDIR /build
+
+RUN apt-get update && apt-get install git ca-certificates && update-ca-certificates
 
 # Copy and download dependency using go mod
 COPY go.mod .
@@ -27,9 +28,11 @@ WORKDIR /dist
 RUN cp /build/main .
 
 # Build a small image
-FROM scratch
+FROM nouchka/sqlite3
 
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY --from=builder /dist/main /
 
+EXPOSE 3000
 # Command to run
 ENTRYPOINT ["/main"]

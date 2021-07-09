@@ -18,5 +18,7 @@ func (s *Server) InitializeRoutes() {
 	// s.r.Route("/u", func(r chi.Router) {
 	s.r.Get("/p", s.ReadPortfolioHandler)
 	s.r.Post("/t", s.UpdatePortfolioHandler)
+	s.r.Get("/q/{symbol}", s.ReadPriceHandler)
+	s.r.Get("/q/{symbol}/{date}", s.ReadPriceHistoricHandler)
 	// })
 }
