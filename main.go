@@ -11,7 +11,7 @@ import (
 )
 
 func getenv(key, fallback string) string {
-	    value := os.Getenv(key)
+	value := os.Getenv(key)
 	if len(value) == 0 {
 		return fallback
 	}
@@ -22,7 +22,7 @@ func getenv(key, fallback string) string {
 
 func main() {
 	db_path := getenv("DB_PATH", ".")
-	port := getenv("PORT", "3000")
+	port := getenv("PORT", "3001")
 
 	pr, err := repos.NewPortfolioRepo(fmt.Sprintf("%s/db.sqlite3", db_path))
 	if err != nil {
