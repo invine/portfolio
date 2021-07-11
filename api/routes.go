@@ -1,6 +1,8 @@
 package api
 
-import "github.com/go-chi/cors"
+import (
+	"github.com/go-chi/cors"
+)
 
 func (s *Server) InitializeRoutes() {
 	s.r.Use(cors.Handler(cors.Options{
@@ -17,8 +19,10 @@ func (s *Server) InitializeRoutes() {
 
 	// s.r.Route("/u", func(r chi.Router) {
 	s.r.Get("/p", s.ReadPortfolioHandler)
-	s.r.Post("/t", s.UpdatePortfolioHandler)
+	s.r.With(s.AuthenticateMiddleware).Post("/t", s.UpdatePortfolioHandler)
 	s.r.Get("/q/{symbol}", s.ReadPriceHandler)
 	s.r.Get("/q/{symbol}/{date}", s.ReadPriceHistoricHandler)
+	s.r.Post("/signin", s.UserSignInHandler)
+	s.r.Post("/signup", s.UserSignUpHandler)
 	// })
 }

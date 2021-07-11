@@ -85,6 +85,7 @@ func (pr *PortfolioRepo) Update(t models.Transaction) error {
 		return fmt.Errorf("can't update portfolio: %w", err)
 	}
 	defer upsertStmt.Close()
+	defer deleteStmt.Close()
 
 	for k, v := range p.Assets() {
 		if v == 0 {

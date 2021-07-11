@@ -23,8 +23,16 @@ func getenv(key, fallback string) string {
 func main() {
 	db_path := getenv("DB_PATH", ".")
 	port := getenv("PORT", "3001")
+	key := []byte(getenv("JWT_KEY", "34$FtGVP*8Uzhp"))
 
-	pr, err := repos.NewPortfolioRepo(fmt.Sprintf("%s/db.sqlite3", db_path))
+	db_conn := fmt.Sprintf("%s/db.sqlite3", db_path)
+
+	ur, err := repos.NewUserRepo(db_conn)
+	if err != nil {
+		panic(err)
+	}
+
+	pr, err := repos.NewPortfolioRepo(db_conn)
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +40,7 @@ func main() {
 	// av := alphavantage.NewAlphaVantage(API_KEY)
 	y := yahooapi.NewYahooAPI()
 
-	s := api.NewServer(pr, y)
+	s := api.NewServer(ur, pr, y, key)
 	s.InitializeRoutes()
 
 	log.Printf("Starting server on %s...", port)
