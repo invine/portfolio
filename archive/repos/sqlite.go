@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
-	"github.com/invine/Portfolio/internal/models"
+	"github.com/invine/Portfolio/archive/models"
 	_ "github.com/mattn/go-sqlite3"
 )
 

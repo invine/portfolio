@@ -3,10 +3,15 @@ package models
 import (
 	"fmt"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 type Portfolio struct {
-	assets map[string]int
+	id      uuid.UUID
+	name    string
+	assets  map[string]int
+	balance float64
 }
 
 func capitalize(a map[string]int) map[string]int {

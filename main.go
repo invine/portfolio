@@ -1,13 +1,17 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 
-	"github.com/invine/Portfolio/api"
-	"github.com/invine/Portfolio/internal/repos"
-	"github.com/invine/Portfolio/internal/yahooapi"
+	"github.com/invine/Portfolio/archive/api"
+	"github.com/invine/Portfolio/archive/repos"
+	"github.com/invine/Portfolio/archive/yahooapi"
+	"github.com/invine/Portfolio/internal/adapters"
+	"github.com/invine/Portfolio/internal/app"
+	_ "github.com/mattn/go-sqlite3"
 )
 
 func getenv(key, fallback string) string {
@@ -26,8 +30,15 @@ func main() {
 	key := []byte(getenv("JWT_KEY", "34$FtGVP*8Uzhp"))
 
 	db_conn := fmt.Sprintf("%s/db.sqlite3", db_path)
-
-	ur, err := repos.NewUserRepo(db_conn)
+	db, err := sql.Open("sqlite3", db_conn)
+	if err != nil {
+		panic(err)
+	}
+	userRepo, err := adapters.NewSQLiteUsersRepository(db)
+	if err != nil {
+		panic(err)
+	}
+	userService, err := app.NewUserService(userRepo)
 	if err != nil {
 		panic(err)
 	}
@@ -40,7 +51,7 @@ func main() {
 	// av := alphavantage.NewAlphaVantage(API_KEY)
 	y := yahooapi.NewYahooAPI()
 
-	s := api.NewServer(ur, pr, y, key)
+	s := api.NewServer(userService, pr, y, key)
 	s.InitializeRoutes()
 
 	log.Printf("Starting server on %s...", port)
