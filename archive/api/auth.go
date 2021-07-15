@@ -83,7 +83,7 @@ func (s *Server) UserSignInHandler(rw http.ResponseWriter, r *http.Request) {
 
 	ctx := context.Background()
 
-	u, err := s.userSrv.AuthenticateUser(ctx, creds.Login, creds.Password)
+	u, err := s.userSvc.AuthenticateUser(ctx, creds.Login, creds.Password)
 	if err != nil {
 		log.Printf("failed sign in: %v", err)
 		rw.WriteHeader(401)
@@ -138,7 +138,7 @@ func (s *Server) UserSignUpHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	ctx := context.Background()
-	if err := s.userSrv.CreateUser(ctx, um.Email, um.Login, um.Password, um.Name); err != nil {
+	if err := s.userSvc.CreateUser(ctx, um.Email, um.Login, um.Password, um.Name); err != nil {
 		log.Printf("failed sign up: %v", err)
 		rw.WriteHeader(500)
 		return

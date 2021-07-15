@@ -22,8 +22,6 @@ func getenv(key, fallback string) string {
 	return value
 }
 
-// const API_KEY = "2UVV3YNX8IY2LNF6"
-
 func main() {
 	db_path := getenv("DB_PATH", ".")
 	port := getenv("PORT", "3001")

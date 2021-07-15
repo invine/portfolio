@@ -40,8 +40,17 @@ func (s *UserService) CreateUser(ctx context.Context, email, login, password, na
 	return nil
 }
 
-func (s *UserService) AuthenticateUser(ctx context.Context, login, password string) (*user.User, error) {
-	return s.repo.GetUserByCredentials(ctx, login, password)
+func (s *UserService) AuthenticateUser(ctx context.Context, loginOrEmail, password string) (*user.User, error) {
+	u, err := s.repo.GetUserByLoginOrEmail(ctx, loginOrEmail)
+	if err := u.PasswordMatch(password); err != nil {
+		return nil, fmt.Errorf("authentication failed: %w", err)
+	}
+
+	if err != nil {
+		return nil, fmt.Errorf("authentication failed: %w", err)
+	}
+
+	return u, nil
 }
 
 func (s *UserService) ChangeUserEmail(ctx context.Context, id uuid.UUID, email string) error {
@@ -58,14 +67,11 @@ func (s *UserService) ChangeUserEmail(ctx context.Context, id uuid.UUID, email s
 
 func (s *UserService) ChangeUserPassword(ctx context.Context, id uuid.UUID, oldPassword, newPassword string) error {
 	err := s.repo.UpdateUser(ctx, id, func(u *user.User) error {
-		if u.Password() != oldPassword {
-			return fmt.Errorf("wrong password")
-		}
-		return u.ChangePassword(newPassword)
+		return u.ChangePassword(oldPassword, newPassword)
 	})
 
 	if err != nil {
-		return fmt.Errorf("change password for user id = %s: %w", id, err)
+		return fmt.Errorf("can't change password for user id = %s: %w", id, err)
 	}
 
 	return nil

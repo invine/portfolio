@@ -31,16 +31,16 @@ type Server struct {
 	r       *chi.Mux
 	pr      PortfolioRepo
 	api     PriceAPI
-	userSrv *app.UserService
+	userSvc *app.UserService
 	key     []byte
 }
 
-func NewServer(userSrv *app.UserService, pr PortfolioRepo, api PriceAPI, key []byte) *Server {
+func NewServer(userSvc *app.UserService, pr PortfolioRepo, api PriceAPI, key []byte) *Server {
 	s := &Server{
 		r:       chi.NewRouter(),
 		pr:      pr,
 		api:     api,
-		userSrv: userSrv,
+		userSvc: userSvc,
 		key:     key,
 	}
 	return s

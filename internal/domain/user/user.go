@@ -5,6 +5,7 @@ import (
 	"net/mail"
 
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -13,6 +14,7 @@ type User struct {
 	email    string
 	password string
 	login    string
+	hash     string
 }
 
 func NewUser(id uuid.UUID, email, login, password, name string) (*User, error) {
@@ -20,7 +22,31 @@ func NewUser(id uuid.UUID, email, login, password, name string) (*User, error) {
 		id: id,
 	}
 
-	if err := u.ChangePassword(password); err != nil {
+	if err := u.setPassword(password); err != nil {
+		return nil, err
+	}
+
+	if err := u.ChangeEmail(email); err != nil {
+		return nil, err
+	}
+
+	if err := u.setLogin(login); err != nil {
+		return nil, err
+	}
+
+	if err := u.ChangeName(name); err != nil {
+		return nil, err
+	}
+
+	return &u, nil
+}
+
+func NewUserFromDB(id uuid.UUID, email, login, passwordHash, name string) (*User, error) {
+	u := User{
+		id: id,
+	}
+
+	if err := u.setHash(passwordHash); err != nil {
 		return nil, err
 	}
 
@@ -40,7 +66,7 @@ func NewUser(id uuid.UUID, email, login, password, name string) (*User, error) {
 }
 
 func (u *User) ChangeEmail(email string) error {
-	if _, err := mail.ParseAddress(u.email); u.email != "" && err != nil {
+	if _, err := mail.ParseAddress(email); email != "" && err != nil {
 		return fmt.Errorf("invalid email format: %w", err)
 	}
 
@@ -57,12 +83,36 @@ func (u *User) setLogin(login string) error {
 	return nil
 }
 
-func (u *User) ChangePassword(password string) error {
+func (u *User) setPassword(password string) error {
 	if password == "" {
 		return fmt.Errorf("password can't be empty")
 	}
 
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), 10)
+	if err != nil {
+		return err
+	}
+
 	u.password = password
+	u.hash = string(hash)
+	return nil
+}
+
+func (u *User) setHash(hash string) error {
+	if hash == "" {
+		return fmt.Errorf("hash can't be empty")
+	}
+	u.hash = string(hash)
+	return nil
+}
+
+func (u *User) ChangePassword(oldPassword, newPassword string) error {
+	if err := u.PasswordMatch(oldPassword); err != nil {
+		return err
+	}
+	if err := u.setPassword(newPassword); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -83,10 +133,17 @@ func (u *User) Login() string {
 	return u.login
 }
 
-func (u *User) Password() string {
-	return u.password
+func (u *User) Hash() string {
+	return u.hash
 }
 
 func (u *User) Name() string {
 	return u.name
+}
+
+func (u *User) PasswordMatch(password string) error {
+	if err := bcrypt.CompareHashAndPassword([]byte(u.hash), []byte(password)); err != nil {
+		return err
+	}
+	return nil
 }
