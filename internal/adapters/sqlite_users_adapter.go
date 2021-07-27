@@ -32,10 +32,18 @@ func NewSQLiteUsersRepository(db *sql.DB) (*SQLiteUsersRepository, error) {
 	}
 
 	sqlStmt := `
-	create table users (id text not null primary key, email text, login text not null, password text not null, name text, unique(email, login));
+        CREATE TABLE IF NOT EXISTS users
+        (
+            id text not null primary key,
+            email text,
+            login text not null,
+            password text not null,
+            name text,
+            unique(email, login)
+        );
 	`
 	_, err := db.Exec(sqlStmt)
-	if err != nil && err.Error() != "table users already exists" {
+	if err != nil {
 		return nil, fmt.Errorf("can't insert table: %w", err)
 	}
 
