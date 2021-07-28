@@ -41,14 +41,12 @@ func (s *UserService) CreateUser(ctx context.Context, email, login, password, na
 }
 
 func (s *UserService) AuthenticateUser(ctx context.Context, loginOrEmail, password string) (*user.User, error) {
-	u, err := s.repo.GetUserByCredentials(ctx, loginOrEmail, func(u user.User) error {
-		if err := u.PasswordMatch(password); err != nil {
-			return fmt.Errorf("authentication failed: %w", err)
-		}
-		return nil
-	})
-
+	u, err := s.repo.GetUserByLoginOrEmail(ctx, loginOrEmail)
 	if err != nil {
+		return nil, fmt.Errorf("authentication failed: %w", err)
+	}
+
+	if err := u.PasswordMatch(password); err != nil {
 		return nil, fmt.Errorf("authentication failed: %w", err)
 	}
 

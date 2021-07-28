@@ -32,10 +32,18 @@ func NewSQLiteUsersRepository(db *sql.DB) (*SQLiteUsersRepository, error) {
 	}
 
 	sqlStmt := `
-	create table users (id text not null primary key, email text, login text not null, password text not null, name text, unique(email, login));
+        CREATE TABLE IF NOT EXISTS users
+        (
+            id text not null primary key,
+            email text,
+            login text not null,
+            password text not null,
+            name text,
+            unique(email, login)
+        );
 	`
 	_, err := db.Exec(sqlStmt)
-	if err != nil && err.Error() != "table users already exists" {
+	if err != nil {
 		return nil, fmt.Errorf("can't insert table: %w", err)
 	}
 
@@ -65,7 +73,7 @@ func (r *SQLiteUsersRepository) CreateUser(ctx context.Context, u *user.User) er
 	return nil
 }
 
-func (r *SQLiteUsersRepository) GetUserByCredentials(ctx context.Context, loginOrEmail string, validateFunc func(u user.User) error) (*user.User, error) {
+func (r *SQLiteUsersRepository) GetUserByLoginOrEmail(ctx context.Context, loginOrEmail string) (*user.User, error) {
 	um, err := r.getUserByLoginOrEmail(ctx, r.db, loginOrEmail, false)
 	if err != nil {
 		return nil, fmt.Errorf("wrong user parameters: %w", err)
@@ -74,10 +82,6 @@ func (r *SQLiteUsersRepository) GetUserByCredentials(ctx context.Context, loginO
 	// TODO evaluate if 's ok to have separate user constructor for DB or it should be decided in use case
 	u, err := user.NewUserFromDB(um.ID, um.Email, um.Login, um.PasswordHash, um.Name)
 	if err != nil {
-		return nil, fmt.Errorf("wrong user parameters: %w", err)
-	}
-
-	if err := validateFunc(*u); err != nil {
 		return nil, fmt.Errorf("wrong user parameters: %w", err)
 	}
 
