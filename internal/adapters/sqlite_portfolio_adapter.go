@@ -222,6 +222,8 @@ func (r *SQLitePortfolioRepository) upsertTransactions(ctx context.Context, tx *
 	if err != nil {
 		return fmt.Errorf("can't upsert transactions: %w", err)
 	}
+	defer stmt.Close()
+
 	for _, trm := range trms {
 		if _, err := stmt.ExecContext(ctx, trm.ID, trm.UserID, trm.PortfolioID, trm.DateString, trm.Asset, trm.Price, trm.Quantity); err != nil {
 			return fmt.Errorf("can't upsert transaction %s: %w", trm.ID.String(), err)

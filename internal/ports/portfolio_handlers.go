@@ -34,6 +34,7 @@ func (s *Server) ListPortfoliosHandler(rw http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// TODO add pagination
 	ps, err := s.app.Queries.AllPortfolios.Handle(
 		r.Context(),
 		query.AllPortfolios{
@@ -48,7 +49,7 @@ func (s *Server) ListPortfoliosHandler(rw http.ResponseWriter, r *http.Request) 
 
 	var pms []portfolioModel
 	for _, p := range ps {
-		pms = append(pms, portfolioToPortfolioModel(p, time.Now()))
+		pms = append(pms, portfolioToPortfolioModel(p, time.Time{}))
 	}
 	bytes, err := json.Marshal(pms)
 	if err != nil {
@@ -65,7 +66,7 @@ func (s *Server) AddPortfolioHandler(rw http.ResponseWriter, r *http.Request) {
 	u, err := UserFromCtx(r.Context())
 	if err != nil {
 		log.Printf("create portfolio: %v", err)
-		rw.WriteHeader(400)
+		rw.WriteHeader(401)
 		return
 	}
 
@@ -79,12 +80,6 @@ func (s *Server) AddPortfolioHandler(rw http.ResponseWriter, r *http.Request) {
 	err = json.Unmarshal(bytes, &pm)
 	if err != nil {
 		log.Printf("create portfolio: %v", err)
-		rw.WriteHeader(400)
-		return
-	}
-
-	if pm.Name == "" {
-		log.Printf("create portfolio: empty name")
 		rw.WriteHeader(400)
 		return
 	}
@@ -182,6 +177,8 @@ func (s *Server) UpdatePortfolioHandler(rw http.ResponseWriter, r *http.Request)
 }
 
 func (s *Server) DeletePortfolioHandler(rw http.ResponseWriter, r *http.Request) {
+	// TODO implement
+	rw.WriteHeader(501)
 }
 
 func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) {
@@ -251,12 +248,14 @@ func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) 
 }
 
 func portfolioToPortfolioModel(p *portfolio.Portfolio, date time.Time) portfolioModel {
-	assets, balance := p.Snapshot(date)
 	pm := portfolioModel{
-		ID:      p.ID().String(),
-		Name:    p.Name(),
-		Assets:  assetsToAssetsModel(assets),
-		Balance: balance,
+		ID:   p.ID().String(),
+		Name: p.Name(),
+	}
+	if !date.IsZero() {
+		assets, balance := p.Snapshot(date)
+		pm.Assets = assetsToAssetsModel(assets)
+		pm.Balance = balance
 	}
 	return pm
 }

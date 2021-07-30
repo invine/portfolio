@@ -1,6 +1,7 @@
 package portfolio
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -16,23 +17,28 @@ type Portfolio struct {
 }
 
 func NewPortfolio(id, userID uuid.UUID, name string) (*Portfolio, error) {
-	// TODO add validation that name is not nil
 	p := &Portfolio{
 		id:     id,
 		userID: userID,
-		name:   name,
+	}
+	if err := p.setName(name); err != nil {
+		return nil, fmt.Errorf("can't create portfolio: %w", err)
 	}
 
 	return p, nil
 }
 
 func NewPortfolioWithTransactions(id, userID uuid.UUID, name string, transactions []*Transaction) (*Portfolio, error) {
-	return &Portfolio{
+	p := &Portfolio{
 		id:           id,
 		userID:       userID,
-		name:         name,
 		transactions: transactions,
-	}, nil
+	}
+	p.setName(name)
+	if err := p.setName(name); err != nil {
+		return nil, fmt.Errorf("can't create portfolio: %w", err)
+	}
+	return p, nil
 }
 
 func (p *Portfolio) Snapshot(date time.Time) (Assets, float64) {
@@ -71,4 +77,12 @@ func (p *Portfolio) Transactions() []*Transaction {
 
 func (p *Portfolio) Name() string {
 	return p.name
+}
+
+func (p *Portfolio) setName(name string) error {
+	if name == "" {
+		return fmt.Errorf("name is mandatory")
+	}
+	p.name = name
+	return nil
 }
