@@ -6,10 +6,7 @@ import (
 	"github.com/google/uuid"
 )
 
-type Asset struct {
-	asset    string
-	quantity int
-}
+type Assets map[string]int
 
 type Portfolio struct {
 	id           uuid.UUID
@@ -38,12 +35,12 @@ func NewPortfolioWithTransactions(id, userID uuid.UUID, name string, transaction
 	}, nil
 }
 
-func (p *Portfolio) Snapshot(date time.Time) ([]Asset, float64) {
-	assets := []Asset{}
+func (p *Portfolio) Snapshot(date time.Time) (Assets, float64) {
+	assets := map[string]int{}
 	balance := 0.0
 	for _, t := range p.transactions {
 		if !t.date.After(date) {
-			assets = append(assets, Asset{asset: t.asset, quantity: t.quantity})
+			assets[t.Asset()] += t.Quantity()
 			balance -= t.price * float64(t.quantity)
 		}
 	}
@@ -74,12 +71,4 @@ func (p *Portfolio) Transactions() []*Transaction {
 
 func (p *Portfolio) Name() string {
 	return p.name
-}
-
-func (a *Asset) Asset() string {
-	return a.asset
-}
-
-func (a *Asset) Quantity() int {
-	return a.quantity
 }

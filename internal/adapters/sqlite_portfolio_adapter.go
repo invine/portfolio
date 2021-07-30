@@ -168,12 +168,6 @@ func (r *SQLitePortfolioRepository) UpdatePortfolio(ctx context.Context, userID,
 
 	pm = portfolioToPortfolioModel(p)
 	trms = portfolioToTransactionModel(p)
-	// for _, t := range trms {
-	// 	fmt.Println(t)
-	// }
-	// for _, t := range p.Transactions() {
-	// 	fmt.Println(t.ID(), t.Asset())
-	// }
 
 	sqlStmt := "update portfolios set name = $3 where userid = $1 and id = $2"
 	if _, err := tx.ExecContext(ctx, sqlStmt, pm.UserID, pm.ID, pm.Name); err != nil {

@@ -8,28 +8,19 @@ import (
 )
 
 type Transaction struct {
-	id uuid.UUID
-	// userID      uuid.UUID
-	// portfolioID uuid.UUID
+	id       uuid.UUID
 	date     time.Time
 	asset    string
 	quantity int
 	price    float64
 }
 
-// func NewTransaction(id, userID, portfolioID uuid.UUID, date time.Time, asset string, quantity int, price float64) (*Transaction, error) {
 func NewTransaction(id uuid.UUID, date time.Time, asset string, quantity int, price float64) (*Transaction, error) {
 	t := &Transaction{}
 
 	if err := t.setID(id); err != nil {
 		return nil, fmt.Errorf("can't create transaction: %w", err)
 	}
-	// if err := t.setUserID(userID); err != nil {
-	// 	return nil, fmt.Errorf("can't create transaction: %w", err)
-	// }
-	// if err := t.setPortfolioID(portfolioID); err != nil {
-	// 	return nil, fmt.Errorf("can't create transaction: %w", err)
-	// }
 	if err := t.setDate(date); err != nil {
 		return nil, fmt.Errorf("can't create transaction: %w", err)
 	}
@@ -69,22 +60,6 @@ func (t *Transaction) setID(id uuid.UUID) error {
 	t.id = id
 	return nil
 }
-
-// func (t *Transaction) setUserID(userID uuid.UUID) error {
-// 	if userID == uuid.Nil {
-// 		return fmt.Errorf("user can't be empty")
-// 	}
-// 	t.userID = userID
-// 	return nil
-// }
-
-// func (t *Transaction) setPortfolioID(portfolioID uuid.UUID) error {
-// 	if portfolioID == uuid.Nil {
-// 		return fmt.Errorf("portfolio can't be empty")
-// 	}
-// 	t.portfolioID = portfolioID
-// 	return nil
-// }
 
 func (t *Transaction) setDate(date time.Time) error {
 	if date.IsZero() {

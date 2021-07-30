@@ -261,12 +261,12 @@ func portfolioToPortfolioModel(p *portfolio.Portfolio, date time.Time) portfolio
 	return pm
 }
 
-func assetsToAssetsModel(assets []portfolio.Asset) []assetModel {
+func assetsToAssetsModel(assets portfolio.Assets) []assetModel {
 	res := []assetModel{}
-	for _, a := range assets {
+	for k, v := range assets {
 		res = append(res, assetModel{
-			Asset:    a.Asset(),
-			Quantity: a.Quantity(),
+			Asset:    k,
+			Quantity: v,
 		})
 	}
 	return res
