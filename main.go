@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/invine/Portfolio/archive/api"
-	"github.com/invine/Portfolio/archive/repos"
-	"github.com/invine/Portfolio/archive/yahooapi"
 	"github.com/invine/Portfolio/internal/adapters"
 	"github.com/invine/Portfolio/internal/app"
+	"github.com/invine/Portfolio/internal/app/command"
+	"github.com/invine/Portfolio/internal/app/query"
+	"github.com/invine/Portfolio/internal/ports"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -41,15 +41,45 @@ func main() {
 		panic(err)
 	}
 
-	pr, err := repos.NewPortfolioRepo(db_conn)
+	portfolioRepo, err := adapters.NewSQLitePortfolioRepository(db)
 	if err != nil {
 		panic(err)
 	}
 
-	// av := alphavantage.NewAlphaVantage(API_KEY)
-	y := yahooapi.NewYahooAPI()
+	applyTransactionHandler, err := command.NewApplyTransactionHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
+	createPortfolioHandler, err := command.NewCreatePortfolioHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
+	deletePortfolioHandler, err := command.NewDeletePortfolioHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
+	allPortfoliosHandler, err := query.NewAllPortfoliosHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
+	portfolioSnapshotHandler, err := query.NewPortfolioHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
 
-	s := api.NewServer(userService, pr, y, key)
+	app := app.Application{
+		Commands: app.Commands{
+			ApplyTransaction: *applyTransactionHandler,
+			CreatePortfolio:  *createPortfolioHandler,
+			DeletePortfolio:  *deletePortfolioHandler,
+		},
+		Queries: app.Queries{
+			AllPortfolios: *allPortfoliosHandler,
+			Portfolio:     *portfolioSnapshotHandler,
+		},
+	}
+
+	s := ports.NewServer(userService, app, key)
 	s.InitializeRoutes()
 
 	log.Printf("Starting server on %s...", port)

@@ -1,8 +1,9 @@
-package api
+package ports
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -10,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/google/uuid"
 )
 
 type UserClaims struct {
@@ -20,10 +22,14 @@ type UserClaims struct {
 	jwt.StandardClaims
 }
 
+type User struct {
+	ID uuid.UUID
+}
+
 type ctxKey int
 
 const (
-	userIDCtxKey ctxKey = iota
+	userCtxKey ctxKey = iota
 )
 
 func (s *Server) AuthenticateMiddleware(next http.Handler) http.Handler {
@@ -33,7 +39,7 @@ func (s *Server) AuthenticateMiddleware(next http.Handler) http.Handler {
 		tokenString := r.Header.Get("Authorization")
 		splitToken := strings.Split(tokenString, "Bearer ")
 		if len(splitToken) < 2 {
-			log.Printf("tocken is not found in header: %s", tokenString)
+			log.Printf("token is not found in header: %s", tokenString)
 			rw.WriteHeader(401)
 			return
 		}
@@ -53,7 +59,13 @@ func (s *Server) AuthenticateMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		ctx = context.WithValue(ctx, userIDCtxKey, claims.ID)
+		id, err := uuid.Parse(claims.ID)
+		if err != nil {
+			log.Printf("user id %s is invalid: %v", claims.ID, err)
+			rw.WriteHeader(401)
+			return
+		}
+		ctx = context.WithValue(ctx, userCtxKey, User{ID: id})
 
 		r = r.WithContext(ctx)
 
@@ -145,4 +157,13 @@ func (s *Server) UserSignUpHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.WriteHeader(200)
+}
+
+func UserFromCtx(ctx context.Context) (User, error) {
+	u, ok := ctx.Value(userCtxKey).(User)
+	if !ok {
+		return User{}, fmt.Errorf("no user in context")
+	}
+
+	return u, nil
 }

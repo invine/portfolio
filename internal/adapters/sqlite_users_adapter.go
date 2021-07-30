@@ -124,15 +124,15 @@ func (r *SQLiteUsersRepository) UpdateUser(ctx context.Context, id uuid.UUID, up
 }
 
 func (r *SQLiteUsersRepository) getUserByID(ctx context.Context, db rowQuerier, id uuid.UUID, forUpdate bool) (*userModel, error) {
-	sql := "select email, login, password, name from users where id = $1"
-	if forUpdate {
-		sql += " for update"
-	}
-	row := db.QueryRowContext(ctx, sql, id)
+	sqlStmt := "select email, login, password, name from users where id = $1"
+	// if forUpdate {
+	// 	sqlStmt += " for update"
+	// }
+	row := db.QueryRowContext(ctx, sqlStmt, id)
 
 	var email, login, passwordHash, name string
 	if err := row.Scan(&email, &login, &passwordHash, &name); err != nil {
-		return nil, fmt.Errorf("user not foud: %w", err)
+		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
 	um := &userModel{
@@ -147,16 +147,16 @@ func (r *SQLiteUsersRepository) getUserByID(ctx context.Context, db rowQuerier, 
 }
 
 func (r *SQLiteUsersRepository) getUserByLoginOrEmail(ctx context.Context, db rowQuerier, loginOrEmail string, forUpdate bool) (*userModel, error) {
-	sql := "select id, email, login, password, name from users where (email = $1 or login = $1)"
-	if forUpdate {
-		sql += " for update"
-	}
-	row := db.QueryRowContext(ctx, sql, loginOrEmail)
+	sqlStmt := "select id, email, login, password, name from users where (email = $1 or login = $1)"
+	// if forUpdate {
+	// 	sqlStmt += " for update"
+	// }
+	row := db.QueryRowContext(ctx, sqlStmt, loginOrEmail)
 
 	var id uuid.UUID
 	var email, login, passwordHash, name string
 	if err := row.Scan(&id, &email, &login, &passwordHash, &name); err != nil {
-		return nil, fmt.Errorf("user not foud: %w", err)
+		return nil, fmt.Errorf("user not found: %w", err)
 	}
 
 	u := &userModel{
