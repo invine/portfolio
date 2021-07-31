@@ -158,11 +158,13 @@ components:
         price:
           type: number
     user:
-      login:
-        type: string
-      email:
-        type: string
-      password:
-        type: string
-      name:
-        type: password
+      type: object
+      properties:
+        login:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        name:
+          type: password
