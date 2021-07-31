@@ -167,4 +167,4 @@ components:
         password:
           type: string
         name:
-          type: password
+          type: string
