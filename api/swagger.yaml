@@ -5,11 +5,13 @@ info:
   description: Portfolio REST server
   version: 1.0.0
 servers:
-  # - url: http://everland.duckdns.org
   - url: http://localhost:3001
+  - url: http://everland.duckdns.org:8000
 paths:
   /portfolio:
     get:
+      security:
+        - bearerAuth: []
       summary: Returns a list of all portfolios
       responses:
         '200':
@@ -21,6 +23,8 @@ paths:
                 items: 
                   $ref: '#/components/schemas/portfolio'
     post:
+      security:
+        - bearerAuth: []
       summary: Create a portfolio
       requestBody:
         description: Create new portfolio
@@ -37,6 +41,8 @@ paths:
             #       type: integer
   /portfolio/{id}:
     get:
+      security:
+        - bearerAuth: []
       summary: Get portfolio with specific id
       parameters:
         - in: path
@@ -59,22 +65,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/portfolio'
-    # delete:
-    #   summary: Delete task with specific id
-    #   parameters:
-    #     - in: path
-    #       name: id
-    #       required: true
-    #       schema:
-    #         type: integer
-    #         minimum: 1
-    #       description: The user ID
-    #   responses:
-    #     '200':
-    #       description: Task with given id deleted
-    #       content: {}
   /portfolio/{id}/transaction:
     post:
+      security:
+        - bearerAuth: []
       summary: Apply transaction to portfolio with specific id
       parameters:
         - in: path
@@ -169,3 +163,8 @@ components:
           type: string
         name:
           type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
