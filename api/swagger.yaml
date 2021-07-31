@@ -29,7 +29,7 @@ paths:
               $ref: '#/components/schemas/portfolio'
       responses:
           '201':
-            description: Success
+            description: OK
             # content:
             #   application/json:
             #     schema:
@@ -91,7 +91,39 @@ paths:
               $ref: '#/components/schemas/transaction'
       responses:
         '201':
-            description: Success
+            description: OK
+  /signin:
+    post:
+      summary: Sign in with credentials
+      requestBody:
+        description: credentials
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '201':
+            description: OK
+            content:
+              text/plain:
+                schema:
+                  type: string
+  /signup:
+    post:
+      summary: Create new user
+      requestBody:
+        description: user details
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/user'
+      responses:
+        '201':
+            description: OK
+            content:
+              text/plain:
+                schema:
+                  type: string
 components:
   schemas:
     portfolio:
@@ -125,3 +157,12 @@ components:
           type: string
         price:
           type: number
+    user:
+      login:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+      name:
+        type: password
