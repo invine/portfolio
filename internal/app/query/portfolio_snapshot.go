@@ -3,6 +3,7 @@ package query
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/invine/Portfolio/internal/domain/portfolio"
@@ -19,6 +20,7 @@ type PortfolioReadModel interface {
 type Portfolio struct {
 	ID     uuid.UUID
 	UserID uuid.UUID
+	Date   time.Time
 }
 
 func NewPortfolioHandler(readModel PortfolioReadModel) (*PortfolioHandler, error) {
@@ -29,10 +31,10 @@ func NewPortfolioHandler(readModel PortfolioReadModel) (*PortfolioHandler, error
 
 }
 
-func (h PortfolioHandler) Handle(ctx context.Context, query Portfolio) (*portfolio.Portfolio, error) {
+func (h PortfolioHandler) Handle(ctx context.Context, query Portfolio) (*portfolio.Snapshot, error) {
 	p, err := h.readModel.GetPortfolio(ctx, query.UserID, query.ID)
 	if err != nil {
 		return nil, fmt.Errorf("can't get portfolio %s: %w", query.ID.String(), err)
 	}
-	return p, nil
+	return p.Snapshot(query.Date), nil
 }

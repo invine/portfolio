@@ -49,7 +49,7 @@ func (s *Server) ListPortfoliosHandler(rw http.ResponseWriter, r *http.Request) 
 
 	var pms []portfolioModel
 	for _, p := range ps {
-		pms = append(pms, portfolioToPortfolioModel(p, time.Time{}))
+		pms = append(pms, portfolioToPortfolioModel(p))
 	}
 	bytes, err := json.Marshal(pms)
 	if err != nil {
@@ -129,11 +129,12 @@ func (s *Server) GetPortfolioHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	p, err := s.app.Queries.Portfolio.Handle(
+	snapshot, err := s.app.Queries.Portfolio.Handle(
 		r.Context(),
 		query.Portfolio{
 			UserID: u.ID,
 			ID:     id,
+			Date:   t,
 		},
 	)
 	if err != nil {
@@ -142,7 +143,12 @@ func (s *Server) GetPortfolioHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	pm := portfolioToPortfolioModel(p, t)
+	pm := portfolioModel{
+		ID:      snapshot.ID.String(),
+		Name:    snapshot.Name,
+		Assets:  assetsToAssetsModel(snapshot.Assets),
+		Balance: snapshot.Balance,
+	}
 	bytes, err := json.Marshal(pm)
 	if err != nil {
 		log.Printf("get portfolio: %v", err)
@@ -247,15 +253,10 @@ func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) 
 	rw.WriteHeader(201)
 }
 
-func portfolioToPortfolioModel(p *portfolio.Portfolio, date time.Time) portfolioModel {
+func portfolioToPortfolioModel(p *portfolio.Portfolio) portfolioModel {
 	pm := portfolioModel{
 		ID:   p.ID().String(),
 		Name: p.Name(),
-	}
-	if !date.IsZero() {
-		assets, balance := p.Snapshot(date)
-		pm.Assets = assetsToAssetsModel(assets)
-		pm.Balance = balance
 	}
 	return pm
 }

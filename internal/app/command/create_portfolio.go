@@ -27,7 +27,7 @@ func NewCreatePortfolioHandler(repo portfolio.PortfolioRepository) (*CreatePortf
 }
 
 func (h CreatePortfolioHandler) Handle(ctx context.Context, cmd CreatePortfolio) error {
-	p, err := portfolio.NewPortfolio(cmd.ID, cmd.UserID, cmd.Name)
+	p, err := portfolio.NewPortfolio(cmd.ID, cmd.UserID, cmd.Name, nil)
 	if err != nil {
 		return fmt.Errorf("can't create portfolio %s: %w", cmd.Name, err)
 	}

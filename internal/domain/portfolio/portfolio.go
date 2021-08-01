@@ -9,6 +9,13 @@ import (
 
 type Assets map[string]int
 
+type Snapshot struct {
+	ID      uuid.UUID
+	Name    string
+	Assets  Assets
+	Balance float64
+}
+
 type Portfolio struct {
 	id           uuid.UUID
 	userID       uuid.UUID
@@ -16,32 +23,25 @@ type Portfolio struct {
 	transactions []*Transaction
 }
 
-func NewPortfolio(id, userID uuid.UUID, name string) (*Portfolio, error) {
-	p := &Portfolio{
-		id:     id,
-		userID: userID,
+func NewPortfolio(id, userID uuid.UUID, name string, transactions []*Transaction) (*Portfolio, error) {
+	p := &Portfolio{}
+	if err := p.setID(id); err != nil {
+		return nil, fmt.Errorf("can't create portfolio: %w", err)
+	}
+	if err := p.setUserID(userID); err != nil {
+		return nil, fmt.Errorf("can't create portfolio: %w", err)
 	}
 	if err := p.setName(name); err != nil {
 		return nil, fmt.Errorf("can't create portfolio: %w", err)
 	}
-
-	return p, nil
-}
-
-func NewPortfolioWithTransactions(id, userID uuid.UUID, name string, transactions []*Transaction) (*Portfolio, error) {
-	p := &Portfolio{
-		id:           id,
-		userID:       userID,
-		transactions: transactions,
-	}
-	p.setName(name)
-	if err := p.setName(name); err != nil {
-		return nil, fmt.Errorf("can't create portfolio: %w", err)
+	p.transactions = transactions
+	if transactions == nil {
+		p.transactions = []*Transaction{}
 	}
 	return p, nil
 }
 
-func (p *Portfolio) Snapshot(date time.Time) (Assets, float64) {
+func (p *Portfolio) Snapshot(date time.Time) *Snapshot {
 	assets := map[string]int{}
 	balance := 0.0
 	for _, t := range p.transactions {
@@ -50,7 +50,12 @@ func (p *Portfolio) Snapshot(date time.Time) (Assets, float64) {
 			balance -= t.price * float64(t.quantity)
 		}
 	}
-	return assets, balance
+	return &Snapshot{
+		ID:      p.ID(),
+		Name:    p.Name(),
+		Assets:  assets,
+		Balance: balance,
+	}
 }
 
 func (p *Portfolio) ApplyTransaction(t *Transaction) error {
@@ -59,7 +64,23 @@ func (p *Portfolio) ApplyTransaction(t *Transaction) error {
 }
 
 func (p *Portfolio) RenamePortfolio(name string) error {
-	p.name = name
+	p.setName(name)
+	return nil
+}
+
+func (p *Portfolio) setID(id uuid.UUID) error {
+	if id == uuid.Nil {
+		return fmt.Errorf("id is mandatory")
+	}
+	p.id = id
+	return nil
+}
+
+func (p *Portfolio) setUserID(userID uuid.UUID) error {
+	if userID == uuid.Nil {
+		return fmt.Errorf("id is mandatory")
+	}
+	p.userID = userID
 	return nil
 }
 

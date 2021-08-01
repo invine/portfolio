@@ -111,7 +111,7 @@ func (r *SQLitePortfolioRepository) GetPortfolio(ctx context.Context, userID, id
 		return nil, fmt.Errorf("can't find portfolio with id %s: %w", id.String(), err)
 	}
 
-	p, err := portfolio.NewPortfolioWithTransactions(pm.ID, pm.UserID, pm.Name, trs)
+	p, err := portfolio.NewPortfolio(pm.ID, pm.UserID, pm.Name, trs)
 	if err != nil {
 		return nil, fmt.Errorf("can't find portfolio with id %s: %w", id.String(), err)
 	}
@@ -127,7 +127,7 @@ func (r *SQLitePortfolioRepository) GetAllPortfolios(ctx context.Context, userID
 
 	portfolios := []*portfolio.Portfolio{}
 	for _, pm := range pms {
-		p, err := portfolio.NewPortfolio(pm.ID, pm.UserID, pm.Name)
+		p, err := portfolio.NewPortfolio(pm.ID, pm.UserID, pm.Name, nil)
 		if err != nil {
 			return nil, fmt.Errorf("can't list portfolio %s for user %s: %w", pm.ID, userID.String(), err)
 		}
@@ -157,7 +157,7 @@ func (r *SQLitePortfolioRepository) UpdatePortfolio(ctx context.Context, userID,
 	if err != nil {
 		return fmt.Errorf("can't update portfolio %s: %w", id.String(), err)
 	}
-	p, err := portfolio.NewPortfolioWithTransactions(pm.ID, pm.UserID, pm.Name, trs)
+	p, err := portfolio.NewPortfolio(pm.ID, pm.UserID, pm.Name, trs)
 	if err != nil {
 		return fmt.Errorf("can't update portfolio %s: %w", id.String(), err)
 	}
