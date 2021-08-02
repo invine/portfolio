@@ -14,12 +14,15 @@ func (s *Server) InitializeRoutes() {
 		MaxAge:           300, // Maximum value not ignored by any of major browsers
 	}))
 
-	s.r.With(s.AuthenticateMiddleware).Get("/portfolio", s.ListPortfoliosHandler)
+	s.r.With(s.AuthenticateMiddleware).With(s.SetContentTypeMiddleware).Get("/portfolio", s.ListPortfoliosHandler)
 	s.r.With(s.AuthenticateMiddleware).Post("/portfolio", s.AddPortfolioHandler)
-	s.r.With(s.AuthenticateMiddleware).Get("/portfolio/{id}", s.GetPortfolioHandler)
+	s.r.With(s.AuthenticateMiddleware).With(s.SetContentTypeMiddleware).Get("/portfolio/{id}", s.GetPortfolioHandler)
 	s.r.With(s.AuthenticateMiddleware).Post("/portfolio/{id}", s.UpdatePortfolioHandler)
 	s.r.With(s.AuthenticateMiddleware).Delete("/portfolio/{id}", s.DeletePortfolioHandler)
 	s.r.With(s.AuthenticateMiddleware).Post("/portfolio/{id}/transaction", s.AddTransactionHandler)
+	s.r.With(s.AuthenticateMiddleware).With(s.SetContentTypeMiddleware).Get("/portfolio/{id}/transaction", s.ListTransactionsHandler)
+	s.r.With(s.AuthenticateMiddleware).Post("/portfolio/{id}/transaction/{transactionid}", s.UpdateTransactionHandler)
+	s.r.With(s.AuthenticateMiddleware).Delete("/portfolio/{id}/transaction/{transactionid}", s.DeleteTransactionHandler)
 	s.r.Post("/signin", s.UserSignInHandler)
 	s.r.Post("/signup", s.UserSignUpHandler)
 }

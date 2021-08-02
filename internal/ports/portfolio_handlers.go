@@ -127,6 +127,7 @@ func (s *Server) GetPortfolioHandler(rw http.ResponseWriter, r *http.Request) {
 			rw.WriteHeader(400)
 			return
 		}
+		t = t.AddDate(0, 0, 1)
 	}
 
 	snapshot, err := s.app.Queries.Portfolio.Handle(
@@ -253,6 +254,21 @@ func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) 
 	rw.WriteHeader(201)
 }
 
+func (s *Server) ListTransactionsHandler(rw http.ResponseWriter, r *http.Request) {
+	// TODO implement
+	rw.WriteHeader(501)
+}
+
+func (s *Server) UpdateTransactionHandler(rw http.ResponseWriter, r *http.Request) {
+	// TODO implement
+	rw.WriteHeader(501)
+}
+
+func (s *Server) DeleteTransactionHandler(rw http.ResponseWriter, r *http.Request) {
+	// TODO implement
+	rw.WriteHeader(501)
+}
+
 func portfolioToPortfolioModel(p *portfolio.Portfolio) portfolioModel {
 	pm := portfolioModel{
 		ID:   p.ID().String(),
@@ -264,10 +280,12 @@ func portfolioToPortfolioModel(p *portfolio.Portfolio) portfolioModel {
 func assetsToAssetsModel(assets portfolio.Assets) []assetModel {
 	res := []assetModel{}
 	for k, v := range assets {
-		res = append(res, assetModel{
-			Asset:    k,
-			Quantity: v,
-		})
+		if v > 0 {
+			res = append(res, assetModel{
+				Asset:    k,
+				Quantity: v,
+			})
+		}
 	}
 	return res
 }

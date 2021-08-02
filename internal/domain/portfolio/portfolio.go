@@ -59,6 +59,9 @@ func (p *Portfolio) Snapshot(date time.Time) *Snapshot {
 }
 
 func (p *Portfolio) ApplyTransaction(t *Transaction) error {
+	if p.Snapshot(t.Date()).Assets[t.Asset()]+t.Quantity() < 0 {
+		return fmt.Errorf("can't apply transaction: asset quantity can't be less than zero")
+	}
 	p.transactions = append(p.transactions, t)
 	return nil
 }
