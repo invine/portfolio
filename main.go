@@ -62,6 +62,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	AllTransactionsHandler, err := query.NewAllTransactionsHandler(portfolioRepo)
+	if err != nil {
+		panic(err)
+	}
 	portfolioSnapshotHandler, err := query.NewPortfolioHandler(portfolioRepo)
 	if err != nil {
 		panic(err)
@@ -74,8 +78,9 @@ func main() {
 			DeletePortfolio:  *deletePortfolioHandler,
 		},
 		Queries: app.Queries{
-			AllPortfolios: *allPortfoliosHandler,
-			Portfolio:     *portfolioSnapshotHandler,
+			AllPortfolios:   *allPortfoliosHandler,
+			AllTransactions: *AllTransactionsHandler,
+			Portfolio:       *portfolioSnapshotHandler,
 		},
 	}
 

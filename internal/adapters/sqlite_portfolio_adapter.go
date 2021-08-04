@@ -137,6 +137,20 @@ func (r *SQLitePortfolioRepository) GetAllPortfolios(ctx context.Context, userID
 	return portfolios, nil
 }
 
+func (r *SQLitePortfolioRepository) GetAllTransactions(ctx context.Context, userID, portfolioID uuid.UUID) ([]*portfolio.Transaction, error) {
+	trms, err := r.getAllTransactions(ctx, r.db, userID, portfolioID, false)
+	if err != nil {
+		return nil, fmt.Errorf("can't list transactions for portfolio %s: %w", portfolioID.String(), err)
+	}
+
+	transactions, err := transactionModelToTransactions(trms)
+	if err != nil {
+		return nil, fmt.Errorf("can't list transactions for portfolio %s: %w", portfolioID.String(), err)
+	}
+
+	return transactions, nil
+}
+
 func (r *SQLitePortfolioRepository) UpdatePortfolio(ctx context.Context, userID, id uuid.UUID, updateFn func(p *portfolio.Portfolio) error) error {
 	tx, err := r.db.Begin()
 	if err != nil {

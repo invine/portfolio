@@ -26,6 +26,13 @@ type portfolioModel struct {
 	Balance float64      `json:"balance"`
 }
 
+type transactionModel struct {
+	Symbol string    `json:"symbol"`
+	Amount int       `json:"amount"`
+	Date   time.Time `json:"date"`
+	Price  float64   `json:"price"`
+}
+
 func (s *Server) ListPortfoliosHandler(rw http.ResponseWriter, r *http.Request) {
 	u, err := UserFromCtx(r.Context())
 	if err != nil {
@@ -189,13 +196,6 @@ func (s *Server) DeletePortfolioHandler(rw http.ResponseWriter, r *http.Request)
 }
 
 func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) {
-	type transactionModel struct {
-		Symbol string    `json:"symbol"`
-		Amount int       `json:"amount"`
-		Date   time.Time `json:"date"`
-		Price  float64   `json:"price"`
-	}
-
 	u, err := UserFromCtx(r.Context())
 	if err != nil {
 		log.Printf("add transaction: %v", err)
@@ -255,8 +255,51 @@ func (s *Server) AddTransactionHandler(rw http.ResponseWriter, r *http.Request) 
 }
 
 func (s *Server) ListTransactionsHandler(rw http.ResponseWriter, r *http.Request) {
+	u, err := UserFromCtx(r.Context())
+	if err != nil {
+		log.Printf("list transactions: %v", err)
+		rw.WriteHeader(400)
+		return
+	}
+
+	portfolioID, err := uuid.Parse(chi.URLParam(r, "id"))
+	if err != nil {
+		log.Printf("list transactions: %v", err)
+		rw.WriteHeader(400)
+		return
+	}
+
+	trs, err := s.app.Queries.AllTransactions.Handle(
+		r.Context(),
+		query.AllTransactions{
+			UserID:      u.ID,
+			PortfolioID: portfolioID,
+		},
+	)
+	if err != nil {
+		log.Printf("list transactions: %v", err)
+		rw.WriteHeader(500)
+		return
+	}
 	// TODO implement
-	rw.WriteHeader(501)
+	trms := []transactionModel{}
+	for _, t := range trs {
+		trms = append(trms, transactionModel{
+			Symbol: t.Asset(),
+			Amount: t.Quantity(),
+			Date:   t.Date(),
+			Price:  t.Price(),
+		})
+	}
+	bytes, err := json.Marshal(trms)
+	if err != nil {
+		log.Printf("list transactions: %v", err)
+		rw.WriteHeader(500)
+		return
+	}
+	if _, err := rw.Write(bytes); err != nil {
+		log.Printf("list transactions: %v", err)
+	}
 }
 
 func (s *Server) UpdateTransactionHandler(rw http.ResponseWriter, r *http.Request) {

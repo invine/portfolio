@@ -17,6 +17,7 @@ type Commands struct {
 }
 
 type Queries struct {
-	AllPortfolios query.AllPortfoliosHandler
-	Portfolio     query.PortfolioHandler
+	AllPortfolios   query.AllPortfoliosHandler
+	AllTransactions query.AllTransactionsHandler
+	Portfolio       query.PortfolioHandler
 }
