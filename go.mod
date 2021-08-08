@@ -1,4 +1,4 @@
-module github.com/invine/Portfolio
+module github.com/invine/portfolio
 
 go 1.16
 
