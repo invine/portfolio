@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
-	"github.com/invine/Portfolio/internal/domain/user"
+	"github.com/invine/portfolio/internal/domain/user"
 )
 
 type UserService struct {

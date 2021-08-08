@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/invine/Portfolio/internal/app/command"
-	"github.com/invine/Portfolio/internal/app/query"
+	"github.com/invine/portfolio/internal/app/command"
+	"github.com/invine/portfolio/internal/app/query"
 )
 
 type Application struct {

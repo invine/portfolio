@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 
-	"github.com/invine/Portfolio/internal/adapters"
-	"github.com/invine/Portfolio/internal/app"
-	"github.com/invine/Portfolio/internal/app/command"
-	"github.com/invine/Portfolio/internal/app/query"
-	"github.com/invine/Portfolio/internal/ports"
+	"github.com/invine/portfolio/internal/adapters"
+	"github.com/invine/portfolio/internal/app"
+	"github.com/invine/portfolio/internal/app/command"
+	"github.com/invine/portfolio/internal/app/query"
+	"github.com/invine/portfolio/internal/ports"
 	_ "github.com/mattn/go-sqlite3"
 )
 

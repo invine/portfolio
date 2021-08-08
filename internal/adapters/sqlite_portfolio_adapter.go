@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/invine/Portfolio/internal/domain/portfolio"
+	"github.com/invine/portfolio/internal/domain/portfolio"
 	_ "github.com/mattn/go-sqlite3"
 )
 

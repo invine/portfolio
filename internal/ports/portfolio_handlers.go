@@ -9,9 +9,9 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
-	"github.com/invine/Portfolio/internal/app/command"
-	"github.com/invine/Portfolio/internal/app/query"
-	"github.com/invine/Portfolio/internal/domain/portfolio"
+	"github.com/invine/portfolio/internal/app/command"
+	"github.com/invine/portfolio/internal/app/query"
+	"github.com/invine/portfolio/internal/domain/portfolio"
 )
 
 type assetModel struct {
